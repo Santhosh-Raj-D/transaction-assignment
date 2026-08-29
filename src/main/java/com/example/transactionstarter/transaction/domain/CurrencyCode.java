@@ -1,4 +1,4 @@
-package com.example.transactionstarter.transaction.doamin;
+package com.example.transactionstarter.transaction.domain;
 
 
 public enum CurrencyCode {

@@ -1,7 +1,8 @@
-package com.example.transactionstarter.transaction.doamin;
+package com.example.transactionstarter.transaction.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -115,8 +116,8 @@ public class Transaction {
      * This is the constructor your application uses when creating
      * a new transaction.
      */
-    public Transaction(String id, String customerId, BigDecimal amount, CurrencyCode currency, TransactionType type) {
-        this.id = id;
+    public Transaction(String customerId, BigDecimal amount, CurrencyCode currency, TransactionType type) {
+        this.id = UUID.randomUUID().toString();
         this.customerId = customerId;
         this.amount = amount;
         this.currency = currency;

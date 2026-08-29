@@ -1,4 +1,4 @@
-package com.example.transactionstarter.transaction.doamin;
+package com.example.transactionstarter.transaction.domain;
 
 /**
  * The kind of money movement a transaction represents.
