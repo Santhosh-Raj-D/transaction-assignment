@@ -6,6 +6,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -14,7 +15,9 @@ import java.math.BigDecimal;
  * when asking the application to create a new transaction.
  */
 public class CreateTransactionRequest {
-
+    
+    @NotBlank(message = "transactionId is required")
+    @Size(max = 64, message = "transactionId must be at most 64 characters")
     @NotBlank(message = "transactionId is required")
     private String transactionId;
 
