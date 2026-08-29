@@ -48,11 +48,9 @@ public class TransactionService {
     }
 
     public Transaction create(CreateTransactionRequest request) {
-        if (repository.existsById(request.getTransactionId())) {
-            throw new DuplicateTransactionException(request.getTransactionId());
-        }
+        
         Transaction transaction = new Transaction(
-                request.getTransactionId(),
+                
                 request.getCustomerId(),
                 request.getAmount(),
                 request.getCurrency(),
