@@ -3,8 +3,6 @@ package com.example.transactionstarter.transaction.doamin;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-import org.hibernate.sql.ast.tree.expression.Every;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -97,13 +95,13 @@ public class Transaction {
      * The creation time should never change.
      */
     @Column(nullable = false, updatable = false)
-    private instant createdAt;
+    private Instant createdAt;
 
     /**
      * This records: When was this transaction last modified?
      */
     @Column(nullable = false)
-    private instant updatedAt;
+    private Instant updatedAt;
 
     /**
      * JPA/Hibernate needs a no-argument constructor to create entity
