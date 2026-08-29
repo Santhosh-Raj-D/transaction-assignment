@@ -1,4 +1,4 @@
-package com.example.transactionstarter;
+package com.example.transactionstarter.CustomTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
