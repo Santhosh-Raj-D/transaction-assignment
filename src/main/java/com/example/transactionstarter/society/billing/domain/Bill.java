@@ -1,6 +1,6 @@
 package com.example.transactionstarter.society.billing.domain;
 
-import com.example.transactionstarter.society.common.IdGenerator;
+import com.example.transactionstarter.idgeneration.service.IdGenerator;
 import com.example.transactionstarter.transaction.domain.CurrencyCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

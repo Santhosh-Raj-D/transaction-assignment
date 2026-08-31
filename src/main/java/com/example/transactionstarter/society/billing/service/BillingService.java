@@ -6,7 +6,7 @@ import com.example.transactionstarter.society.billing.dto.CreateBillRequest;
 import com.example.transactionstarter.society.billing.exception.BillAlreadyPaidException;
 import com.example.transactionstarter.society.billing.exception.BillNotFoundException;
 import com.example.transactionstarter.society.billing.repository.BillRepository;
-import com.example.transactionstarter.society.common.IdGenerator;
+import com.example.transactionstarter.idgeneration.service.IdGenerator;
 import com.example.transactionstarter.transaction.domain.Transaction;
 import com.example.transactionstarter.transaction.dto.CreateTransactionRequest;
 import com.example.transactionstarter.transaction.domain.TransactionType;
