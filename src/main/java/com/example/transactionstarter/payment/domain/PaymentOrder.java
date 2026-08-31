@@ -3,10 +3,15 @@ package com.example.transactionstarter.payment.domain;
 import com.example.transactionstarter.idgeneration.service.IdGenerator;
 import com.example.transactionstarter.transaction.domain.CurrencyCode;
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -42,11 +47,22 @@ public class PaymentOrder {
     @Column(nullable = false, length = 20)
     private PaymentMethod method;
 
-    @Column(nullable = false)
+    @Column(name = "sender_bank_account_id", nullable = false)
     private String senderBankAccountId;
 
-    @Column(nullable = false)
+    @Column(name = "receiver_bank_account_id", nullable = false)
     private String receiverBankAccountId;
+
+    /** Read-only navigable relationships to the same *_bank_account_id columns above. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_bank_account_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private BankAccount senderBankAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_bank_account_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private BankAccount receiverBankAccount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -108,6 +124,14 @@ public class PaymentOrder {
 
     public String getReceiverBankAccountId() {
         return receiverBankAccountId;
+    }
+
+    public BankAccount getSenderBankAccount() {
+        return senderBankAccount;
+    }
+
+    public BankAccount getReceiverBankAccount() {
+        return receiverBankAccount;
     }
 
     public PaymentStatus getStatus() {

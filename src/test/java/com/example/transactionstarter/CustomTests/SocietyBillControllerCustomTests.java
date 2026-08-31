@@ -110,4 +110,39 @@ class SocietyBillControllerCustomTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].status").value("PENDING"));
     }
+
+    @Test
+    void createBill_missingResidentId_returnsBadRequest() throws Exception {
+        String body = """
+                {"raisedBy": "ADM-1", "head": "MAINTENANCE", "description": "No resident", "amount": 500.00, "currency": "INR"}
+                """;
+
+        mockMvc.perform(post("/api/society/bills")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createBill_missingHead_returnsBadRequest() throws Exception {
+        String residentId = createResident("BILL-VALIDATE-1");
+        String body = """
+                {"residentId": "%s", "raisedBy": "ADM-1", "description": "No head", "amount": 500.00, "currency": "INR"}
+                """.formatted(residentId);
+
+        mockMvc.perform(post("/api/society/bills")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createBill_zeroAmount_returnsBadRequest() throws Exception {
+        String residentId = createResident("BILL-VALIDATE-2");
+        String body = """
+                {"residentId": "%s", "raisedBy": "ADM-1", "head": "MAINTENANCE", "description": "Zero amount", "amount": 0, "currency": "INR"}
+                """.formatted(residentId);
+
+        mockMvc.perform(post("/api/society/bills")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
 }

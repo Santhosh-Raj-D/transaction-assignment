@@ -1,6 +1,7 @@
 package com.example.transactionstarter.CustomTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,9 +11,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.transactionstarter.payment.domain.BankAccount;
 import com.example.transactionstarter.payment.repository.BankAccountRepository;
 import com.example.transactionstarter.payment.repository.BankRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 /**
  * Verifies Bank/BankAccount are looked up and reused on repeat use, not
@@ -30,6 +36,9 @@ class PaymentBankReuseCustomTests {
 
     @Autowired
     private BankAccountRepository bankAccountRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Test
     void twoPaymentsSameBankAndInstrument_reuseExistingBankAndAccount() throws Exception {
@@ -59,5 +68,47 @@ class PaymentBankReuseCustomTests {
         assertEquals(banksBefore + 1, bankRepository.count());
         // 2 distinct (bank, method, accountRef) instruments - created once each, reused on the second call.
         assertEquals(accountsBefore + 2, bankAccountRepository.count());
+    }
+
+    /**
+     * Confirms the BankAccount -&gt; Bank {@code @ManyToOne} mapping
+     * actually navigates, not just that the annotation is present.
+     */
+    @Test
+    @Transactional
+    void bankAccount_canNavigateToBankViaJpaRelationship() throws Exception {
+        String requestBody = """
+                {
+                    "payerId": "RES-JPA-1",
+                    "payeeId": "MER-JPA-1",
+                    "amount": 25.00,
+                    "currency": "INR",
+                    "method": "UPI",
+                    "senderBankName": "JpaCheckBank",
+                    "senderAccountRef": "jpaSender@bank",
+                    "receiverBankName": "JpaCheckBank",
+                    "receiverAccountRef": "jpaReceiver@bank"
+                }
+                """;
+
+        mockMvc.perform(post("/api/payments").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isCreated());
+
+        // The BankAccount above was created via `new BankAccount(...)` in this same
+        // session, so its `bank` field was never populated. Flush + clear the
+        // persistence context so the lookup below reloads a fresh managed instance
+        // (with its lazy `bank` association) instead of returning that same object
+        // from Hibernate's identity map.
+        entityManager.flush();
+        entityManager.clear();
+
+        BankAccount account = bankAccountRepository.findByBankIdAndMethodAndAccountRef(
+                        bankRepository.findByName("JpaCheckBank").orElseThrow().getId(),
+                        com.example.transactionstarter.payment.domain.PaymentMethod.UPI,
+                        "jpaSender@bank")
+                .orElseThrow();
+
+        assertNotNull(account.getBank());
+        assertEquals("JpaCheckBank", account.getBank().getName());
     }
 }

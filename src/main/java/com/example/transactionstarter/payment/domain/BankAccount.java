@@ -2,10 +2,15 @@ package com.example.transactionstarter.payment.domain;
 
 import com.example.transactionstarter.idgeneration.service.IdGenerator;
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /**
@@ -25,8 +30,14 @@ public class BankAccount {
     @Column(updatable = false, nullable = false)
     private String id;
 
-    @Column(nullable = false)
+    @Column(name = "bank_id", nullable = false)
     private String bankId;
+
+    /** Read-only navigable relationship to the same bank_id column; bankId remains the source of truth. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Bank bank;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -61,5 +72,9 @@ public class BankAccount {
 
     public String getAccountRef() {
         return accountRef;
+    }
+
+    public Bank getBank() {
+        return bank;
     }
 }

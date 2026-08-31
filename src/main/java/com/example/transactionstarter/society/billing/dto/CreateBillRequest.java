@@ -5,6 +5,7 @@ import com.example.transactionstarter.transaction.domain.CurrencyCode;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -21,6 +22,7 @@ public class CreateBillRequest {
     private PaymentHead head;
 
     @NotBlank(message = "description is required")
+    @Size(max = 255, message = "description must be at most 255 characters")
     private String description;
 
     @NotNull(message = "amount is required")

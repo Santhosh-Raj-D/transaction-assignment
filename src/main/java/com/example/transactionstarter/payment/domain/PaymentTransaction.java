@@ -1,11 +1,18 @@
 package com.example.transactionstarter.payment.domain;
 
 import com.example.transactionstarter.idgeneration.service.IdGenerator;
+import com.example.transactionstarter.transaction.domain.Transaction;
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
@@ -26,11 +33,22 @@ public class PaymentTransaction {
     @Column(updatable = false, nullable = false)
     private String id;
 
-    @Column(nullable = false)
+    @Column(name = "payment_order_id", nullable = false)
     private String paymentOrderId;
 
-    @Column
+    @Column(name = "transaction_id")
     private String transactionId;
+
+    /** Read-only navigable relationships to the same columns above. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_order_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private PaymentOrder paymentOrder;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Transaction transaction;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -61,6 +79,14 @@ public class PaymentTransaction {
 
     public String getTransactionId() {
         return transactionId;
+    }
+
+    public PaymentOrder getPaymentOrder() {
+        return paymentOrder;
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
     }
 
     public PaymentStatus getStatus() {
