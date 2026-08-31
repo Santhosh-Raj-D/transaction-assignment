@@ -68,6 +68,37 @@ public final class IdGenerator {
         return build("TXN", payerId, receiverId + "-" + typeOrHead);
     }
 
+    /**
+     * Builds a payment order ID from the payer, payee, and payment method
+     * of the order being created.
+     */
+    public static String generatePaymentOrderId(String payerId, String payeeId, String methodOrHead) {
+        requireAtLeastOne("payment order", payerId, payeeId);
+        return build("PAY", payerId, payeeId + "-" + methodOrHead);
+    }
+
+    /**
+     * Builds a payment transaction ID from the payment order it belongs to
+     * and the underlying transaction reference it resulted in (or "NA" if
+     * the underlying transaction was never created).
+     */
+    public static String generatePaymentTransactionId(String paymentOrderId, String transactionRef) {
+        requireAtLeastOne("payment transaction", paymentOrderId, transactionRef);
+        return build("PTXN", paymentOrderId, transactionRef);
+    }
+
+    /** Builds a bank ID from the bank name. */
+    public static String generateBankId(String bankName) {
+        requireAtLeastOne("bank", bankName, null);
+        return build("BANK", bankName, "");
+    }
+
+    /** Builds a bank account ID from the owning bank and the account/instrument reference. */
+    public static String generateBankAccountId(String bankId, String accountRef) {
+        requireAtLeastOne("bank account", bankId, accountRef);
+        return build("BACC", bankId, accountRef);
+    }
+
     /** Ensures at least one of the two most meaningful fields for this ID was actually supplied. */
     private static void requireAtLeastOne(String idKind, String fieldA, String fieldB) {
         if (isBlank(fieldA) && isBlank(fieldB)) {
