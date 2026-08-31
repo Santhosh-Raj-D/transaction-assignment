@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.transactionstarter.society.common.IdGenerator;
+import com.example.transactionstarter.idgeneration.service.IdGenerator;
 
 /**
  * Verifies backend-generated transaction IDs: never manually supplied,
