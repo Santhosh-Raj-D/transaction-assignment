@@ -1,9 +1,15 @@
 package com.example.transactionstarter.society.actor.controller;
 
 import com.example.transactionstarter.society.actor.dto.CreateMerchantRequest;
+import com.example.transactionstarter.society.actor.dto.CreatePropertyManagerRequest;
 import com.example.transactionstarter.society.actor.dto.CreateResidentRequest;
+import com.example.transactionstarter.society.actor.dto.CreateSecurityGuardRequest;
+import com.example.transactionstarter.society.actor.dto.CreateSocietyAdminRequest;
 import com.example.transactionstarter.society.actor.dto.MerchantResponse;
+import com.example.transactionstarter.society.actor.dto.PropertyManagerResponse;
 import com.example.transactionstarter.society.actor.dto.ResidentResponse;
+import com.example.transactionstarter.society.actor.dto.SecurityGuardResponse;
+import com.example.transactionstarter.society.actor.dto.SocietyAdminResponse;
 import com.example.transactionstarter.society.actor.service.ActorService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +57,26 @@ public class ActorController {
     @GetMapping("/merchants/{id}")
     public MerchantResponse getMerchant(@PathVariable String id) {
         return MerchantResponse.from(actorService.getMerchant(id));
+    }
+
+    @PostMapping("/admins")
+    public ResponseEntity<SocietyAdminResponse> createAdmin(@Valid @RequestBody CreateSocietyAdminRequest request) {
+        SocietyAdminResponse body = SocietyAdminResponse.from(
+                actorService.createSocietyAdmin(request.getName(), request.getSocietyId(), request.getRole()));
+        return ResponseEntity.created(URI.create("/api/society/admins/" + body.getId())).body(body);
+    }
+
+    @PostMapping("/property-managers")
+    public ResponseEntity<PropertyManagerResponse> createPropertyManager(@Valid @RequestBody CreatePropertyManagerRequest request) {
+        PropertyManagerResponse body = PropertyManagerResponse.from(
+                actorService.createPropertyManager(request.getName(), request.getSocietyId()));
+        return ResponseEntity.created(URI.create("/api/society/property-managers/" + body.getId())).body(body);
+    }
+
+    @PostMapping("/guards")
+    public ResponseEntity<SecurityGuardResponse> createGuard(@Valid @RequestBody CreateSecurityGuardRequest request) {
+        SecurityGuardResponse body = SecurityGuardResponse.from(
+                actorService.createSecurityGuard(request.getName(), request.getSocietyId()));
+        return ResponseEntity.created(URI.create("/api/society/guards/" + body.getId())).body(body);
     }
 }

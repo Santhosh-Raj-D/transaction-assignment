@@ -1,6 +1,8 @@
 package com.example.transactionstarter.transaction.controller;
 
 import com.example.transactionstarter.transaction.domain.Transaction;
+import com.example.transactionstarter.transaction.domain.TransactionStatus;
+import com.example.transactionstarter.transaction.domain.TransactionType;
 import com.example.transactionstarter.transaction.dto.CreateTransactionRequest;
 import com.example.transactionstarter.transaction.dto.TransactionResponse;
 import com.example.transactionstarter.transaction.dto.UpdateStatusRequest;
@@ -13,7 +15,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.net.URI;
 import java.util.List;
@@ -60,5 +65,38 @@ public class TransactionController {
         return transactionService.getByCustomerId(customerId).stream()
                 .map(TransactionResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    // 5. Filter transactions by status and/or type
+    // GET /api/transactions?status={status}
+    // GET /api/transactions?type={type}
+    @GetMapping("/transactions")
+    public List<TransactionResponse> filter(@RequestParam(required = false) String status,
+                                             @RequestParam(required = false) String type) {
+        TransactionStatus parsedStatus = parseEnum(TransactionStatus.class, status, "status");
+        TransactionType parsedType = parseEnum(TransactionType.class, type, "type");
+        return transactionService.search(parsedStatus, parsedType).stream()
+                .map(TransactionResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    // 6. Refund a completed transaction
+    // POST /api/transactions/{id}/refund
+    // Reuses the existing status state-machine (COMPLETED -> REVERSED); no separate refund logic.
+    @PostMapping("/transactions/{id}/refund")
+    public TransactionResponse refund(@PathVariable String id) {
+        return TransactionResponse.from(transactionService.refund(id));
+    }
+
+    /** Parses an optional query-param enum value, returning a clear 400 instead of a stack trace on invalid input. */
+    private <E extends Enum<E>> E parseEnum(Class<E> enumType, String rawValue, String paramName) {
+        if (rawValue == null || rawValue.isBlank()) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumType, rawValue.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid " + paramName + " value: " + rawValue);
+        }
     }
 }

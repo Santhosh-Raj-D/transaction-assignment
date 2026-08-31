@@ -19,6 +19,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class SocietyExceptionHandler {
 
+    @ExceptionHandler(BillNotPaidException.class)
+    public ResponseEntity<Object> handleBillNotPaid(BillNotPaidException ex) {
+        return errorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(BillNotFoundException.class)
     public ResponseEntity<Object> handleBillNotFound(BillNotFoundException ex) {
         return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
