@@ -70,4 +70,48 @@ class SocietyActorControllerCustomTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty());
     }
+
+    @Test
+    void createResident_missingName_returnsBadRequest() throws Exception {
+        String body = """
+                {"flatId": "A-101", "contact": "9999999999"}
+                """;
+
+        mockMvc.perform(post("/api/society/residents")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createResident_missingContact_returnsBadRequest() throws Exception {
+        String body = """
+                {"name": "Asha Rao", "flatId": "A-102"}
+                """;
+
+        mockMvc.perform(post("/api/society/residents")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createMerchant_missingBusinessName_returnsBadRequest() throws Exception {
+        String body = """
+                {"category": "SALON", "settlementAccount": "merchant@upi"}
+                """;
+
+        mockMvc.perform(post("/api/society/merchants")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createMerchant_missingSettlementAccount_returnsBadRequest() throws Exception {
+        String body = """
+                {"businessName": "Glow Salon", "category": "SALON"}
+                """;
+
+        mockMvc.perform(post("/api/society/merchants")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest());
+    }
 }

@@ -25,7 +25,7 @@ public class Resident {
     @Column(nullable = false)
     private String flatId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String contact;
 
     protected Resident() {
