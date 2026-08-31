@@ -82,6 +82,11 @@ public class Bill {
         this.transactionId = transactionId;
     }
 
+    /** Cancels a pending bill (e.g. raised in error, or waived). */
+    public void markCancelled() {
+        this.status = BillStatus.CANCELLED;
+    }
+
     public String getId() {
         return id;
     }

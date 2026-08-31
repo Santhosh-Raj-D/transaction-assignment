@@ -2,9 +2,11 @@ package com.example.transactionstarter.society.billing.service;
 
 import com.example.transactionstarter.society.billing.domain.Bill;
 import com.example.transactionstarter.society.billing.domain.BillStatus;
+import com.example.transactionstarter.society.billing.dto.BillReceiptResponse;
 import com.example.transactionstarter.society.billing.dto.CreateBillRequest;
 import com.example.transactionstarter.society.billing.exception.BillAlreadyPaidException;
 import com.example.transactionstarter.society.billing.exception.BillNotFoundException;
+import com.example.transactionstarter.society.billing.exception.BillNotPaidException;
 import com.example.transactionstarter.society.billing.repository.BillRepository;
 import com.example.transactionstarter.idgeneration.service.IdGenerator;
 import com.example.transactionstarter.transaction.domain.Transaction;
@@ -66,5 +68,36 @@ public class BillingService {
 
         bill.markPaid(transaction.getId());
         return billRepository.save(bill);
+    }
+
+    /** Cancels a bill that is still PENDING. */
+    public Bill cancel(String billId) {
+        Bill bill = getById(billId);
+        if (bill.getStatus() != BillStatus.PENDING) {
+            throw new BillAlreadyPaidException(billId);
+        }
+        bill.markCancelled();
+        return billRepository.save(bill);
+    }
+
+    /** Only the pending/outstanding bills for a resident. */
+    public List<Bill> getOutstandingForResident(String residentId) {
+        return billRepository.findByResidentIdAndStatus(residentId, BillStatus.PENDING);
+    }
+
+    /** Admin-wide filter across all residents' bills by status. */
+    public List<Bill> getByStatus(BillStatus status) {
+        return billRepository.findByStatus(status);
+    }
+
+    /** Builds a receipt for a PAID bill by looking up its linked transaction. */
+    public BillReceiptResponse getReceipt(String billId) {
+        Bill bill = getById(billId);
+        if (bill.getStatus() != BillStatus.PAID || bill.getTransactionId() == null) {
+            throw new BillNotPaidException(billId);
+        }
+        Transaction transaction = transactionService.getById(bill.getTransactionId());
+        return new BillReceiptResponse(bill.getId(), bill.getResidentId(), bill.getDescription(), bill.getAmount(),
+                bill.getCurrency(), transaction.getId(), transaction.getStatus(), transaction.getUpdatedAt());
     }
 }

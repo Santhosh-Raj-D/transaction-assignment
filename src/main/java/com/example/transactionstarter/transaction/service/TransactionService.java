@@ -2,6 +2,7 @@ package com.example.transactionstarter.transaction.service;
 
 import com.example.transactionstarter.transaction.domain.Transaction;
 import com.example.transactionstarter.transaction.domain.TransactionStatus;
+import com.example.transactionstarter.transaction.domain.TransactionType;
 import com.example.transactionstarter.transaction.dto.CreateTransactionRequest;
 import com.example.transactionstarter.transaction.exception.DuplicateTransactionException;
 import com.example.transactionstarter.transaction.exception.InvalidStatusTransitionException;
@@ -68,6 +69,27 @@ public class TransactionService {
 
     public List<Transaction> getByCustomerId(String customerId) {
         return repository.findByCustomerId(customerId);
+    }
+
+    /** Filters by status only, by type only, by both, or returns all when neither is given. */
+    public List<Transaction> search(TransactionStatus status, TransactionType type) {
+        if (status != null && type != null) {
+            return repository.findByStatus(status).stream()
+                    .filter(t -> t.getType() == type)
+                    .toList();
+        }
+        if (status != null) {
+            return repository.findByStatus(status);
+        }
+        if (type != null) {
+            return repository.findByType(type);
+        }
+        return repository.findAll();
+    }
+
+    /** Dedicated refund action: reuses the existing status state-machine, no separate refund logic. */
+    public Transaction refund(String id) {
+        return updateStatus(id, TransactionStatus.REVERSED);
     }
 
     public Transaction updateStatus(String id, TransactionStatus newStatus) {
