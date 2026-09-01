@@ -1,0 +1,75 @@
+================================================================================
+PART 1 — TEST RUN OUTPUT (actual output of ./mvnw clean test)
+================================================================================
+
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 80, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  15.896 s
+[INFO] Finished at: 2026-09-01T10:06:47+05:30
+[INFO] ------------------------------------------------------------------------
+
+================================================================================
+PART 2 — TEST EXPLANATION (category-wise)
+================================================================================
+
+Total: 80 tests, 0 failures, 0 errors.
+
+1. Transaction Module Tests (assigned work) — 8 tests
+   File: TransactionControllerTest (class name inside TransactionStarterApplicationTests.java)
+   Covers the four operations the company asked for, plus the starter's
+   original sample test:
+     - contextLoads() — the starter project's original sample test, kept as-is.
+     - createTransaction_withValidRequest_returns201AndPendingStatus — successful creation.
+     - createTransaction_withNegativeAmount_returns400WithFieldError — invalid transaction rejected.
+     - createTransaction_withDuplicateId_returns409 — duplicate Transaction ID rejected.
+     - getTransaction_whenNotFound_returns404 — non-existent transaction lookup.
+     - updateStatus_withIllegalTransition_returns409 — illegal status change rejected.
+     - updateStatus_withLegalTransition_returns200AndNewStatus — legal status change accepted.
+     - getTransactionsForCustomer_returnsOnlyThatCustomersTransactions — customer-scoped lookup.
+   This is the primary, company-assigned deliverable and its tests were
+   given the most attention.
+
+2. Transaction Extended / Supporting Tests — 18 tests
+   Files: TransactionRepositoryTest (4), TransactionServiceTest (1),
+   TransactionAmountBoundaryTest (4), TransactionEmptyListTest (1),
+   TransactionFilterControllerCustomTests (3), TransactionFullLifecycleTest (1),
+   TransactionIdGenerationTest (2), TransactionRefundControllerCustomTests (2).
+   Covers repository-level persistence and lookups, amount boundary edge
+   cases, filtering by status/type, the refund endpoint, generated-ID
+   creation flow, and an end-to-end lifecycle scenario built during my
+   additional exploration.
+
+3. Payment Module Tests — 25 tests
+   Files: PaymentControllerCustomTests (6), PaymentIdGenerationTest (5),
+   PaymentServiceTests (3), PaymentStrategyTests (9), PaymentBankReuseCustomTests (2).
+   Covers payment order creation/retrieval, each PaymentStrategy
+   implementation (UPI, Card, Wallet, Net Banking), service-level
+   orchestration, ID generation for payment orders, and reuse of existing
+   bank accounts across payments.
+
+4. Society API Tests — 25 tests
+   Files: SocietyActorControllerCustomTests (8), SocietyBillControllerCustomTests (9),
+   BillingServiceTests (3), BillReceiptControllerCustomTests (2), ActorIdGenerationTest (3).
+   Covers registering the society actors (Resident, Merchant, Admin,
+   Property Manager, Security Guard), raising/paying/cancelling bills,
+   outstanding-bill lookups, receipt generation, and generated IDs for
+   society actors.
+
+5. Client Flow Tests — 1 test
+   File: ClientTransactionServiceTests.
+   Covers the simplified client-facing payment initiation flow where
+   Customer ID and Transaction ID are generated rather than supplied.
+
+6. ID Generation / Validation Tests — 3 tests
+   Files: IdGenerationInvalidInputTest (2), InvalidEnumTest (1).
+   Covers invalid input to the ID generator (e.g. no meaningful fields
+   supplied) and invalid enum values sent to the API.
+
+--------------------------------------------------------------------------------
+Category totals: 8 + 18 + 25 + 25 + 1 + 3 = 80, matching the reported test count.
+--------------------------------------------------------------------------------
